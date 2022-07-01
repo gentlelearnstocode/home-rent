@@ -3,7 +3,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { Navbar, PrivateRoute } from './components';
-import { Explore, ForgotPassword, Offers, Profile, SignIn, SignUp, Category, CreateListing } from './pages';
+import { Explore, ForgotPassword, Offers, Profile, SignIn, SignUp, Category, CreateListing, Post } from './pages';
 
 function App() {
   return (
@@ -20,6 +20,7 @@ function App() {
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/category/:categoryName" element={<Category />} />
+          <Route path="/category/:categoryName/:postId" element={<Post />} />
           <Route path="/create-listing" element={<PrivateRoute />}>
             <Route path="/create-listing" element={<CreateListing />} />
           </Route>

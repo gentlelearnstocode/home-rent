@@ -6,5 +6,6 @@ import ForgotPassword from './ForgotPassword';
 import Profile from './Profile';
 import Category from './Category';
 import CreateListing from './CreateListing';
+import Post from './Post';
 
-export { Explore, SignIn, SignUp, Offers, ForgotPassword, Profile, Category, CreateListing };
+export { Explore, SignIn, SignUp, Offers, ForgotPassword, Profile, Category, CreateListing, Post };

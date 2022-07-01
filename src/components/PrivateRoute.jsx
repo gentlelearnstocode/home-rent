@@ -6,6 +6,9 @@ import { useEffect } from 'react';
 import { types } from '../actions/types';
 
 const PrivateRoute = ({ isSignedIn, checkingStatus, signInUser }) => {
+  //TODO
+  //App does not remember isSignedIn status
+
   useEffect(() => {
     const auth = getAuth();
     onAuthStateChanged(auth, (user) => {
