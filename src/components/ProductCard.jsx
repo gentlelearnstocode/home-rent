@@ -5,21 +5,30 @@ import { IoBedOutline, IoPricetagsOutline } from 'react-icons/io5';
 import { IconContext } from 'react-icons/lib';
 import { MdOutlineBathroom } from 'react-icons/md';
 import { BsHouse } from 'react-icons/bs';
+import { useNavigate } from 'react-router-dom';
 
-const ProductCard = ({ img, name, location, bedrooms, bathrooms, regularPrice, offer, discountedPrice, type }) => {
+const ProductCard = ({ img, name, location, bedrooms, bathrooms, regularPrice, offer, discountedPrice, type, id }) => {
+  const navigate = useNavigate();
+
+  const handleProductClicked = () => {
+    navigate(`/category/${type}/${id}`);
+  };
+
   return (
     <IconContext.Provider value={{ color: '#34568b', size: '30px' }}>
-      <div className="w-50 bg-white rounded-lg overflow-hidden font-sans font-semibold text-gray-500 h-80">
+      <div
+        onClick={() => handleProductClicked()}
+        className="w-50 bg-white rounded-lg overflow-hidden font-sans font-semibold text-gray-500 h-80 cursor-pointer">
         <div className="flex flex-row">
           <img src={img[0]} className="object-fill w-1/2 h-full" />
           <div className="p-2">
             <div className="flex flex-row items-center">
               <GoLocation />
-              <h1 className="ml-2">{location}</h1>
+              <h1 className="ml-2 capitalize">{location}</h1>
             </div>
             <div className="flex flex-row space-x-2 items-center">
               <BsHouse />
-              <h2 className="mt-2 text-xl">{name}</h2>
+              <h2 className="mt-2 text-xl capitalize">{name}</h2>
             </div>
             <h3 className="text-2xl font-mono font-bold my-2 text-emerald-400">
               <div className="flex flex-row space-x-2">
@@ -47,11 +56,12 @@ ProductCard.propTypes = {
   img: PropTypes.array.isRequired,
   name: PropTypes.string.isRequired,
   location: PropTypes.string.isRequired,
-  regularPrice: PropTypes.number.isRequired,
+  regularPrice: PropTypes.string.isRequired,
   bedrooms: PropTypes.number.isRequired,
   bathrooms: PropTypes.number.isRequired,
   offer: PropTypes.bool.isRequired,
-  discountedPrice: PropTypes.number
+  discountedPrice: PropTypes.string,
+  id: PropTypes.string.isRequired
 };
 
 export default ProductCard;

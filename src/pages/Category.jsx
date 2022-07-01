@@ -44,11 +44,11 @@ const Category = () => {
       fetchListings();
     }, 2000);
     return () => clearTimeout(timer);
-  }, [params.categoryName, listings]);
+  }, []);
 
   return (
     <div>
-      <div>
+      <div className="h-screen">
         <header>Showing places for {params.categoryName}</header>
         {isLoading ? (
           <Loading />
@@ -71,6 +71,7 @@ const Category = () => {
                   timestamp,
                   type
                 } = list.data;
+                const { id } = list;
                 return (
                   <section key={listings.id}>
                     <ProductCard
@@ -83,6 +84,7 @@ const Category = () => {
                       location={location}
                       discountedPrice={offer ? discountedPrice : regularPrice}
                       type={type}
+                      id={id}
                     />
                   </section>
                 );

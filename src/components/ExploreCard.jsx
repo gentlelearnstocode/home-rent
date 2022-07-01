@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 const ExploreCard = ({ type, icon, link }) => {
-  console.log(icon);
   return (
     <div className="px-5 w-1/4 hover:-translate-y-1 transition duration-100">
       <div

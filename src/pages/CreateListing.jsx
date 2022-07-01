@@ -6,7 +6,7 @@ import { Loading, Modal } from '../components';
 import { FaPlusCircle, FaMinusCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { v4 } from 'uuid';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 import { INCREASE_BATHROOMS, DECREASE_BATHROOMS, INCREASE_BEDROOMS, DECREASE_BEDROOMS } from '../constants';
 import { GEOCODING_API_KEY, GEOCODING_API_URL } from '../config/apiConfig';
@@ -404,20 +404,18 @@ const CreateListing = () => {
                 No
               </button>
             </div>
-            {(type === 'rent' || type === 'homestay') && (
-              <div className="flex flex-col">
-                <label className="label-text">Regular Price</label>
-                <section className="flex flex-row items-center">
-                  <input
-                    onChange={handleUserInput}
-                    className="text-center w-1/4 py-4 bg-slate-100 rounded-lg outline-none text-xl font-semibold text-emerald-400"
-                    id="regularPrice"
-                    value={regularPrice}
-                    type="number"></input>
-                  <p className="label-text">/Month</p>
-                </section>
-              </div>
-            )}
+            <div className="flex flex-col">
+              <label className="label-text">{type === 'rent' || type === 'homestay' ? 'Regular Price' : 'Price'}</label>
+              <section className="flex flex-row items-center">
+                <input
+                  onChange={handleUserInput}
+                  className="text-center w-1/4 py-4 bg-slate-100 rounded-lg outline-none text-xl font-semibold text-emerald-400"
+                  id="regularPrice"
+                  value={regularPrice}
+                  type="number"></input>
+                <p className="label-text">{type === 'rent' ? '/Month' : type === 'homestay' ? '/Night' : null}</p>
+              </section>
+            </div>
             {offer && (
               <div className="flex flex-col">
                 <label className="label-text">Discounted Price</label>

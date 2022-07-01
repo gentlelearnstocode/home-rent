@@ -1,23 +1,24 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { useNavigate, Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { MdOutlineBathroom } from 'react-icons/md';
 import { IoBedOutline } from 'react-icons/io5';
 import { IconContext } from 'react-icons/lib';
 import { TbSofa, TbParking } from 'react-icons/tb';
+import { BsShare } from 'react-icons/bs';
 
 import { locationIcon } from '../assets/images';
 import { Loading } from '../components';
 import { db } from '../firebase.config';
+import { toast } from 'react-toastify';
 
 const Post = () => {
   const [post, setPost] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
 
-  const navigate = useNavigate();
   const params = useParams();
   const auth = getAuth();
 
@@ -36,9 +37,13 @@ const Post = () => {
     }
   };
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <IconContext.Provider value={{ color: 'rgb(14, 165, 233)', size: '30px' }}>
-      <div className="h-full w-full p-5">
+      <div className="h-screen p-5">
         {post === null ? (
           <Loading />
         ) : (
@@ -49,17 +54,36 @@ const Post = () => {
               </section>
               <section></section>
             </div>
-            <div className="px-5 text-gray-500">
-              <section className="mb-5 bg-white p-5 rounded-lg">
-                <div className="flex flex-row items-center">
-                  <img src={locationIcon} width="30" />
-                  <p className="font-bold text-2xl text-sky-500 mb-2">{post.location}</p>
+            <div className="pl-5 text-gray-500">
+              <section className="mb-5 bg-white p-5 rounded-lg flex flex-row justify-between items-center">
+                <div>
+                  <div className="flex flex-row items-center">
+                    <img src={locationIcon} width="30" />
+                    <p className="font-bold text-2xl text-sky-500 mb-2 capitalize">{post.location}</p>
+                  </div>
+                  <p className="font-semibold text-xl capitalize">{post.name}</p>
+                  <p className="w-20 text-center font-thin border-2 text-white bg-gray-500 uppercase mt-4 shadow-lg rounded-md">
+                    {post.type}
+                  </p>
                 </div>
-                <p className="font-semibold text-xl">{post.name}</p>
+                {!shareLinkCopied && (
+                  <div
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      setShareLinkCopied(true);
+                      toast.success('Post copied');
+                      setTimeout(() => {
+                        setShareLinkCopied(false);
+                      }, 2000);
+                    }}
+                    className="bg-gray-100 py-4 px-4 rounded-full cursor-pointer">
+                    <BsShare />
+                  </div>
+                )}
               </section>
               <section className="mb-5 bg-white p-5 rounded-lg text-center font-extrabold text-4xl text-green-500">
                 <p>
-                  ${post.discountedPrice ? post.discountedPrice : post.regularPrice}
+                  ${post.offer ? post.discountedPrice : post.regularPrice}
                   {(post.type === 'rent' || post.type === 'homestay') && '/Month'}
                 </p>
               </section>
@@ -98,6 +122,15 @@ const Post = () => {
                   </div>
                 </section>
               </section>
+              {auth.currentUser.uid !== post.userRef && (
+                <section className="mb-5 bg-white p-5 rounded-lg text-center">
+                  <Link
+                    to={`/contact/${post.userRef}?postName=${post.name}`}
+                    className="bg-indigo-400 py-2 px-20 text-xl uppercase font-semibold rounded-lg ring-2 text-gray-100 ring-sky-500 hover:-translate-y-1 transition duration-200">
+                    Contact Owner
+                  </Link>
+                </section>
+              )}
             </div>
           </main>
         )}
