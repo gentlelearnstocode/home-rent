@@ -8,6 +8,13 @@ import { IoBedOutline } from 'react-icons/io5';
 import { IconContext } from 'react-icons/lib';
 import { TbSofa, TbParking } from 'react-icons/tb';
 import { BsShare } from 'react-icons/bs';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Navigation, Scrollbar, A11y } from 'swiper';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/scrollbar';
 
 import { locationIcon } from '../assets/images';
 import { Loading } from '../components';
@@ -31,7 +38,6 @@ const Post = () => {
     const postSnap = await getDoc(postRef);
 
     if (postSnap.exists()) {
-      console.log(postSnap.data());
       setPost(postSnap.data());
       setIsLoading(false);
     }
@@ -43,18 +49,26 @@ const Post = () => {
 
   return (
     <IconContext.Provider value={{ color: 'rgb(14, 165, 233)', size: '30px' }}>
-      <div className="h-screen p-5">
+      <div className="p-5 h-full">
         {post === null ? (
           <Loading />
         ) : (
-          <main className="grid grid-cols-2">
-            <div className="flex">
-              <section>
-                <img src={post.imgUrls[0]} className="w-100 h-100 object-contain"></img>
-              </section>
-              <section></section>
-            </div>
-            <div className="pl-5 text-gray-500">
+          <main className="grid grid-cols-2 h-max">
+            <section>
+              <Swiper
+                modules={[Pagination, Navigation, Scrollbar, A11y]}
+                slidesPerView={1}
+                pagination={{ clickable: true }}>
+                {post.imgUrls.map((img, index) => {
+                  return (
+                    <SwiperSlide key={index}>
+                      <img src={post.imgUrls[index]} className="w-full h-96 object-cover"></img>
+                    </SwiperSlide>
+                  );
+                })}
+              </Swiper>
+            </section>
+            <div className="pl-5 text-gray-500 h-full">
               <section className="mb-5 bg-white p-5 rounded-lg flex flex-row justify-between items-center">
                 <div>
                   <div className="flex flex-row items-center">
@@ -131,6 +145,21 @@ const Post = () => {
                   </Link>
                 </section>
               )}
+              <section className="w-full h-96">
+                <MapContainer
+                  style={{ width: '100%', height: '100%' }}
+                  center={[post.geolocation.latitude, post.geolocation.longitude]}
+                  zoom={13}
+                  scrollWheelZoom={true}>
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <Marker position={[post.geolocation.latitude, post.geolocation.longitude]}>
+                    <Popup>{post.location}</Popup>
+                  </Marker>
+                </MapContainer>
+              </section>
             </div>
           </main>
         )}

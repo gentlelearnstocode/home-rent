@@ -1,9 +1,9 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getAuth, updateProfile } from 'firebase/auth';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { updateDoc, doc } from 'firebase/firestore';
+import { updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { connect } from 'react-redux/es/exports';
 import PropTypes from 'prop-types';
 import { FaArrowRight } from 'react-icons/fa';
@@ -12,6 +12,8 @@ import { Link } from 'react-router-dom';
 import { db } from '../firebase.config';
 import { UserIcon } from '../assets/icons';
 import { types } from '../actions/types';
+import { queryListingData } from '../utils/asyncUtils';
+import { Loading, PostList } from '../components';
 
 const Profile = ({ signOutUser }) => {
   const auth = getAuth();
@@ -20,10 +22,24 @@ const Profile = ({ signOutUser }) => {
     name: auth.currentUser.displayName,
     email: auth.currentUser.email
   });
-
+  const [userPosts, setUserPosts] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [changeProfile, setChangeProfile] = useState(false);
-
   const { name, email } = userData;
+
+  useEffect(() => {
+    let userPosts = [];
+    try {
+      queryListingData('userRef', auth.currentUser.uid, userPosts);
+    } catch (error) {
+      toast.error('Could not fetch posts');
+    }
+    const timer = setTimeout(() => {
+      setUserPosts(userPosts);
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSignout = () => {
     auth.signOut();
@@ -57,6 +73,23 @@ const Profile = ({ signOutUser }) => {
       [e.target.id]: e.target.value
     }));
   };
+
+  const onDeletePost = async (id) => {
+    if (window.confirm('Delete this post?')) {
+      await deleteDoc(doc(db, 'listings', id));
+      const updatedList = userPosts.filter((post) => {
+        return post.id !== id;
+      });
+      setUserPosts(updatedList);
+      toast.success('Post has been successfully deleted');
+    }
+  };
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  console.log(userPosts);
 
   return (
     <div className="w-screen h-screen flex flex-col items-center mt-10">
@@ -97,6 +130,50 @@ const Profile = ({ signOutUser }) => {
           </button>
         </div>
       </main>
+      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th scope="col" className="px-6 py-3">
+                Index
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Title
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Location
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Type
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Price
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {userPosts.map((post, index) => {
+              const { name, location, regularPrice, discountedPrice, offer, type } = post.data;
+              const { id } = post;
+              return (
+                <PostList
+                  key={index}
+                  title={name}
+                  location={location}
+                  price={offer ? discountedPrice : regularPrice}
+                  type={type}
+                  index={index}
+                  id={id}
+                  onDeletePost={onDeletePost}
+                />
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
