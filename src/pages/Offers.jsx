@@ -43,7 +43,7 @@ const Offers = () => {
 
   return (
     <div className="h-screen w-screen">
-      <div>
+      <>
         {isLoading ? (
           <Loading />
         ) : listings && listings.length > 0 ? (
@@ -86,7 +86,7 @@ const Offers = () => {
         ) : (
           emptyList
         )}
-      </div>
+      </>
     </div>
   );
 };

@@ -19,13 +19,18 @@ const Profile = ({ signOutUser }) => {
   const auth = getAuth();
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
-    name: auth.currentUser.displayName,
-    email: auth.currentUser.email
+    name: localStorage.getItem('displayName'),
+    email: localStorage.getItem('Email')
+
+    // name: auth.currentUser.displayName,
+    // email: auth.currentUser.email
   });
   const [userPosts, setUserPosts] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [changeProfile, setChangeProfile] = useState(false);
   const { name, email } = userData;
+
+  console.log(localStorage.displayName);
 
   useEffect(() => {
     let userPosts = [];
@@ -44,6 +49,7 @@ const Profile = ({ signOutUser }) => {
   const handleSignout = () => {
     auth.signOut();
     signOutUser();
+    localStorage.clear();
     navigate('/');
     toast.info('You have been signed out ');
   };
@@ -85,22 +91,18 @@ const Profile = ({ signOutUser }) => {
     }
   };
 
+  const onViewPostItem = (type, id) => {
+    navigate(`/category/${type}/${id}`);
+  };
+
   if (isLoading) {
     return <Loading />;
   }
 
-  console.log(userPosts);
-
   return (
-    <div className="w-screen h-screen flex flex-col items-center mt-10">
+    <div className="w-screen h-screen flex flex-col items-center">
       <header></header>
-      <Link
-        to="/create-listing"
-        className="flex flex-row w-2/3 bg-slate-400 my-5 py-2 rounded-3xl text-center text-xl text-white capitalize px-2 font-thin hover:bg-emerald-400">
-        <h1 className="grow">Sell or rent your home</h1>
-        <FaArrowRight className="shrink text-4xl self-end" />
-      </Link>
-      <main className="auth-container flex flex-col items-center">
+      <main className="auth-container flex flex-col items-center my-10">
         <h1 className="text-gray-500 font-semibold text-xl my-5">Personal Information</h1>
         <UserIcon fill="#42b0f5" width="40" height="40" />
         <input
@@ -130,7 +132,7 @@ const Profile = ({ signOutUser }) => {
           </button>
         </div>
       </main>
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+      <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-10">
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
@@ -149,7 +151,7 @@ const Profile = ({ signOutUser }) => {
               <th scope="col" className="px-6 py-3">
                 Price
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-6 py-3  text-center">
                 Action
               </th>
             </tr>
@@ -168,6 +170,7 @@ const Profile = ({ signOutUser }) => {
                   index={index}
                   id={id}
                   onDeletePost={onDeletePost}
+                  onViewPostItem={onViewPostItem}
                 />
               );
             })}

@@ -31,6 +31,9 @@ const SignIn = () => {
       const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       userCredential.user && navigate('/profile');
+      // const userAccessToken = await userCredential.user.getIdToken();
+      localStorage.setItem('displayName', userCredential.user.displayName);
+      localStorage.setItem('Email', userCredential.user.email);
     } catch (error) {
       toast.error('Invalid user credentials');
     }
@@ -39,7 +42,7 @@ const SignIn = () => {
   return (
     <div className="flex flex-col items-center w-screen h-screen">
       <header>
-        <p className="text-primary">Welcome Back To HomeRent</p>
+        <p className="text-primary">Welcome To HomeRent</p>
       </header>
       <main className="auth-container">
         <form onSubmit={handleSignInSubmit} className="flex flex-col items-center py-5">

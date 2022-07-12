@@ -34,8 +34,11 @@ const OAuth = () => {
           timestamp: serverTimestamp()
         });
       }
+      localStorage.setItem('displayName', user.displayName);
+      localStorage.setItem('Email', user.email);
+
       navigate('/');
-      toast.success(`Welcome ${user.displayName}! You have been registered. Start exploring now!`);
+      toast.success(`Welcome ${user.displayName}! You have been logged in with google account!`);
     } catch (error) {
       toast.error(`Could not sign ${locateRoute()} with Google`);
     }

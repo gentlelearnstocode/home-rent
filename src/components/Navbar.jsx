@@ -13,7 +13,7 @@ const Navbar = () => {
   };
 
   return (
-    <div>
+    <>
       <nav className="grid grid-cols-2 w-full border-2 shadow-lg">
         <div className="px-10">
           <img className="cursor-pointer" src={mainLogo} width="120" onClick={() => navigate('/')} />
@@ -40,7 +40,7 @@ const Navbar = () => {
         </ul>
       </nav>
       <hr></hr>
-    </div>
+    </>
   );
 };
 

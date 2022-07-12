@@ -25,12 +25,16 @@ const Category = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const emptyList = <h1>Currently, there is no places for {params.categoryName}</h1>;
+  const emptyList = (
+    <h1 className="font-semibold text-center">Currently, there is no places for {params.categoryName}</h1>
+  );
 
   return (
-    <div>
+    <>
       <div className="h-full">
-        <header>Showing places for {params.categoryName}</header>
+        <header className="text-center font-semibold my-5 capitalize text-sky-500 text-2xl">
+          Showing places for {params.categoryName}
+        </header>
         {isLoading ? (
           <Loading />
         ) : listings && listings.length > 0 ? (
@@ -76,7 +80,7 @@ const Category = () => {
           emptyList
         )}
       </div>
-    </div>
+    </>
   );
 };
 

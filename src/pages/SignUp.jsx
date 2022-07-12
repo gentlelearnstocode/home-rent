@@ -45,7 +45,10 @@ const SignUp = () => {
       delete userDataCopy.password;
       userDataCopy.timestamp = serverTimestamp();
       await setDoc(doc(db, 'users', user.uid), userDataCopy);
+      localStorage.setItem('displayName', email);
+      localStorage.setItem('Email', name);
       navigate('/');
+      toast.success(`Welcome ${name}! You have registered successfully!`);
     } catch (error) {
       toast.error('Something went wrong. Please try again!');
     }

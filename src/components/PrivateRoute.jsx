@@ -14,6 +14,10 @@ const PrivateRoute = ({ isSignedIn, checkingStatus, signInUser }) => {
     onAuthStateChanged(auth, (user) => {
       user && signInUser();
     });
+    // const isAuthenticated = localStorage.getItem('access token');
+    // if (isAuthenticated) {
+    //   signInUser();
+    // }
   });
 
   return isSignedIn ? <Outlet /> : <Navigate to="/sign-in" />;
