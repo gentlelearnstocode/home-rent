@@ -30,8 +30,6 @@ const Profile = ({ signOutUser }) => {
   const [changeProfile, setChangeProfile] = useState(false);
   const { name, email } = userData;
 
-  console.log(localStorage.displayName);
-
   useEffect(() => {
     let userPosts = [];
     try {
