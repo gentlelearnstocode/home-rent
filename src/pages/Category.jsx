@@ -39,7 +39,7 @@ const Category = () => {
           <Loading />
         ) : listings && listings.length > 0 ? (
           <Fragment>
-            <main className="grid lg:grid-cols-2 gap-2 mx-10 md:grid-cols-2 sm:grid-cols-1">
+            <main className="grid lg:grid-cols-2 gap-2 mx-10 md:grid-cols-2 sm:grid-cols-1 my-10">
               {listings.map((list) => {
                 const {
                   bathrooms,

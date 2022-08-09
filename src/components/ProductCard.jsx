@@ -19,8 +19,8 @@ const ProductCard = ({ img, name, location, bedrooms, bathrooms, regularPrice, o
       <div
         onClick={() => handleProductClicked()}
         className="w-50 bg-white rounded-lg overflow-hidden font-sans font-semibold text-gray-500 h-80 cursor-pointer">
-        <div className="flex flex-row">
-          <img src={img[0]} className="object-fill w-1/2 h-full" />
+        <div className="flex flex-row h-full">
+          <img src={img[0]} className="w-1/2 h-full" />
           <div className="p-2">
             <div className="flex flex-row items-center">
               <GoLocation />
