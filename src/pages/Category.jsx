@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { Loading, ProductCard } from '../components';
+import { ProductCard, Progress } from '../components';
 import { queryListingData } from '../utils/asyncUtils';
 
 const Category = () => {
@@ -36,7 +36,7 @@ const Category = () => {
           Showing places for {params.categoryName}
         </header>
         {isLoading ? (
-          <Loading />
+          <Progress />
         ) : listings && listings.length > 0 ? (
           <Fragment>
             <main className="grid lg:grid-cols-2 gap-2 mx-10 md:grid-cols-2 sm:grid-cols-1 my-10">

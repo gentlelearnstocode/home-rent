@@ -6,14 +6,15 @@ import { useNavigate } from 'react-router-dom';
 import { updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { connect } from 'react-redux/es/exports';
 import PropTypes from 'prop-types';
-import { FaArrowRight } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { TextField, Button, Fab } from '@mui/material';
+import { Edit, Done } from '@mui/icons-material';
 
 import { db } from '../firebase.config';
 import { UserIcon } from '../assets/icons';
 import { types } from '../actions/types';
 import { queryListingData } from '../utils/asyncUtils';
 import { Loading, PostList } from '../components';
+import styles from './styles';
 
 const Profile = ({ signOutUser }) => {
   const auth = getAuth();
@@ -103,31 +104,37 @@ const Profile = ({ signOutUser }) => {
       <main className="auth-container flex flex-col items-center my-10">
         <h1 className="text-gray-500 font-semibold text-xl my-5">Personal Information</h1>
         <UserIcon fill="#42b0f5" width="40" height="40" />
-        <input
+        <TextField
           onChange={onChangeUserInput}
           type="text"
           id="name"
           value={name}
           disabled={!changeProfile}
-          className="input-container border-2 rounded-lg"
+          sx={styles.userInfo}
         />
-        <input type="email" id="email" value={email} disabled={true} className="input-container border-2 rounded-lg" />
+        <TextField type="email" id="email" value={email} disabled={true} sx={styles.userInfo} />
         <div className="flex flex-row space-x-5 my-5">
-          <button
+          <Button
             type="button"
             onClick={() => {
               changeProfile && onUpdateUserInfo();
               setChangeProfile((prev) => !prev);
-            }}
-            className="bg-green-500 w-20 py-1 text-md text-white font-semibold rounded-lg shadow-sm hover:bg-green-400">
-            {changeProfile ? 'Done' : 'Update'}
-          </button>
-          <button
-            type="button"
-            onClick={handleSignout}
-            className="bg-red-500 w-20 py-1 text-md text-white font-semibold rounded-lg shadow-sm hover:bg-red-400">
-            Sign out
-          </button>
+            }}>
+            {changeProfile ? (
+              <Fab color="primary">
+                <Done />
+              </Fab>
+            ) : (
+              <Fab color="secondary">
+                <Edit />
+              </Fab>
+            )}
+          </Button>
+          <Button type="button" onClick={handleSignout}>
+            <Fab variant="extended">
+              <Done />
+            </Fab>
+          </Button>
         </div>
       </main>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-10">

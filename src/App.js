@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { Navbar, PostList, PrivateRoute } from './components';
+import { Navbar, PostList, PrivateRoute, BottomNavigation, SearchAppBar } from './components';
 import {
   Explore,
   ForgotPassword,
@@ -20,7 +20,7 @@ function App() {
   return (
     <div className=" bg-gray-100 h-full">
       <Router>
-        <Navbar />
+        <SearchAppBar />
         <Routes>
           <Route path="/" element={<Explore />} />
           <Route path="/offers" element={<Offers />} />
@@ -37,6 +37,7 @@ function App() {
             <Route path="/create-listing" element={<CreateListing />} />
           </Route>
         </Routes>
+        <BottomNavigation />
       </Router>
       <ToastContainer position="top-center" autoClose={3000} />
     </div>

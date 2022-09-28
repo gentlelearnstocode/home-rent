@@ -5,11 +5,13 @@ import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { cloneDeep } from 'lodash';
 import { toast } from 'react-toastify';
+import { TextField, Button } from '@mui/material';
 
 import { db } from '../firebase.config';
 import { EmailIcon, LockIcon, showPasswordIcon, hidePasswordIcon, UserIcon } from '../assets/icons';
 import { app } from '../firebase.config';
 import { OAuth } from '../components';
+import styles from './styles';
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -56,14 +58,11 @@ const SignUp = () => {
 
   return (
     <div className="flex flex-col items-center w-screen h-screen">
-      <header>
-        <p className="text-primary">Signup To Get Started</p>
-      </header>
-      <main className="auth-container">
+      <main className="auth-container mt-5 pt-5">
         <form onSubmit={handleSignUpSubmit} className="flex flex-col items-center py-5">
           <div className="flex flex-row justify-center items-center w-full">
-            <UserIcon />
-            <input
+            <TextField
+              variant="filled"
               type="text"
               id="name"
               placeholder="Name"
@@ -74,8 +73,8 @@ const SignUp = () => {
             <div className="w-5"></div>
           </div>
           <div className="flex flex-row justify-center items-center w-full">
-            <EmailIcon />
-            <input
+            <TextField
+              variant="filled"
               type="email"
               id="email"
               placeholder="Email"
@@ -86,8 +85,8 @@ const SignUp = () => {
             <div className="w-5"></div>
           </div>
           <div className="flex flex-row justify-center items-center w-full">
-            <LockIcon />
-            <input
+            <TextField
+              variant="filled"
               type={showPassword ? 'text' : 'password'}
               id="password"
               placeholder="Password"
@@ -101,13 +100,15 @@ const SignUp = () => {
               <img onClick={toggleShowPassword} src={hidePasswordIcon} width="20px" height="20px" />
             )}
           </div>
-          <button type="submit" className="btn-primary hover:bg-indigo-400">
+          <Button variant="contained" type="submit" sx={styles.marginTop}>
             Signup
-          </button>
-          <OAuth />
-          <Link to="/sign-in" className="btn-primary my-5 bg-emerald-500 capitalize hover:bg-green-400">
-            Click here to sign in
-          </Link>
+          </Button>
+          <div className="flex flex-row space-x-5 mt-5">
+            <OAuth />
+            <Button variant="outlined">
+              <Link to="/sign-in">Click here to sign in</Link>
+            </Button>
+          </div>
         </form>
       </main>
     </div>

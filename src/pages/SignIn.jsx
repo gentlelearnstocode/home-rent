@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { toast } from 'react-toastify';
+import { TextField, Button, Paper } from '@mui/material';
 
-import { EmailIcon, LockIcon, showPasswordIcon, hidePasswordIcon } from '../assets/icons';
+import { showPasswordIcon, hidePasswordIcon } from '../assets/icons';
 import { OAuth } from '../components';
 
 const SignIn = () => {
@@ -42,32 +43,29 @@ const SignIn = () => {
 
   return (
     <div className="flex flex-col items-center w-screen h-screen">
-      <header>
-        <p className="text-primary">Welcome To HomeRent</p>
-      </header>
-      <main className="auth-container">
+      <main className="auth-container mt-5 pt-5">
         <form onSubmit={handleSignInSubmit} className="flex flex-col items-center py-5">
           <div className="flex flex-row justify-center items-center w-full">
-            <EmailIcon />
-            <input
+            <TextField
               type="email"
               id="email"
               placeholder="Email"
               value={email}
               onChange={handleUserInput}
               className="input-container"
+              variant="filled"
             />
             <div className="w-5"></div>
           </div>
           <div className="flex flex-row justify-center items-center w-full">
-            <LockIcon />
-            <input
+            <TextField
               type={showPassword ? 'text' : 'password'}
               id="password"
               placeholder="Password"
               value={password}
               onChange={handleUserInput}
               className="input-container"
+              variant="filled"
             />
             {!showPassword ? (
               <img onClick={toggleShowPassword} src={showPasswordIcon} width="20px" height="20px" />
@@ -75,16 +73,20 @@ const SignIn = () => {
               <img onClick={toggleShowPassword} src={hidePasswordIcon} width="20px" height="20px" />
             )}
           </div>
-          <Link to="/forgot-password" className="self-end mx-2 my-2">
-            Forgot password
-          </Link>
-          <button type="submit" className="btn-primary hover:bg-indigo-400">
+          <Button variant="text">
+            <Link to="/forgot-password" className="self-end mx-2 my-2">
+              Forgot password
+            </Link>
+          </Button>
+          <Button type="submit" variant="contained">
             Signin
-          </button>
-          <OAuth />
-          <Link to="/sign-up" className="btn-primary my-5 bg-emerald-500 capitalize hover:bg-green-400">
-            Click here to Sign up
-          </Link>
+          </Button>
+          <div className="flex flex-row mt-5 space-x-5">
+            <OAuth />
+            <Button variant="outlined">
+              <Link to="/sign-up">Click here to Sign up</Link>
+            </Button>
+          </div>
         </form>
       </main>
     </div>

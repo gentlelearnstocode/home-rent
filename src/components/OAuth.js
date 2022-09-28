@@ -4,6 +4,7 @@ import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase.config';
 import { toast } from 'react-toastify';
+import { Button } from '@mui/material';
 
 import { googleIcon } from '../assets/icons';
 
@@ -46,10 +47,10 @@ const OAuth = () => {
 
   return (
     <div className="flex flex-row items-center space-x-2 text-lg text-gray-700 font-semibold">
-      <h1>Sign {locateRoute()} with Google</h1>
-      <button onClick={handleGoogleAuth} type="button" className="p-2 rounded-full shadow-xl bg-gray-100">
+      <Button onClick={handleGoogleAuth} type="button" variant="outlined">
+        <h1>Sign {locateRoute()} with Google</h1>
         <img src={googleIcon} alt="google-icon" width="30px" height="30px" />
-      </button>
+      </Button>
     </div>
   );
 };
