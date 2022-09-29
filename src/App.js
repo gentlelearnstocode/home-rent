@@ -13,7 +13,8 @@ import {
   Category,
   CreateListing,
   Post,
-  ContactOwner
+  ContactOwner,
+  ViewPosts
 } from './pages';
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
           <Route path="/create-listing" element={<PrivateRoute />}>
             <Route path="/create-listing" element={<CreateListing />} />
           </Route>
+          <Route path="/view-posts" element={<ViewPosts />} />
         </Routes>
         <BottomNavigation />
       </Router>

@@ -9,6 +9,7 @@ import PostList from './PostList';
 import Progress from './Progress';
 import BottomNavigation from './BottomNavigation';
 import SearchAppBar from './SearchAppBar';
+import InstructionModal from './InstructionModal';
 
 export {
   Navbar,
@@ -21,5 +22,6 @@ export {
   PostList,
   Progress,
   BottomNavigation,
-  SearchAppBar
+  SearchAppBar,
+  InstructionModal
 };

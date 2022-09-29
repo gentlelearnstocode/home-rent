@@ -10,4 +10,10 @@ export const categoryRoutes = {
   homestay: '/category/homestay'
 };
 
+export const Messages = {
+  LOG_OUT: 'Are you sure you want to log out?'
+};
+
+export const colors = {};
+
 export { INCREASE_BATHROOMS, DECREASE_BATHROOMS, INCREASE_BEDROOMS, DECREASE_BEDROOMS };

@@ -1,13 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { useRef } from 'react';
 
 const ExploreCard = ({ type, icon, link }) => {
-  const imgRef = useRef(null);
-  if (imgRef !== null) {
-    console.log(imgRef.current);
-  }
   return (
     <div className="px-5 w-1/4 hover:-translate-y-1 transition duration-100">
       <div
@@ -16,7 +11,7 @@ const ExploreCard = ({ type, icon, link }) => {
         <section className="flex flex-col justify-center items-center space-y-4">
           <h1 className="text-center mx-2 text-xl font-semibold text-gray-600">{type}</h1>
           <Link to={link}>
-            <img ref={imgRef} src={icon} width="80" height="80" />
+            <img src={icon} width="80" height="80" />
           </Link>
         </section>
       </div>

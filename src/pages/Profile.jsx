@@ -7,14 +7,15 @@ import { updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { connect } from 'react-redux/es/exports';
 import PropTypes from 'prop-types';
 import { TextField, Button, Fab } from '@mui/material';
-import { Edit, Done } from '@mui/icons-material';
+import { Edit, Done, Logout } from '@mui/icons-material';
 
 import { db } from '../firebase.config';
 import { UserIcon } from '../assets/icons';
 import { types } from '../actions/types';
 import { queryListingData } from '../utils/asyncUtils';
-import { Loading, PostList } from '../components';
+import { Progress, PostList, InstructionModal } from '../components';
 import styles from './styles';
+import { Messages } from '../constants';
 
 const Profile = ({ signOutUser }) => {
   const auth = getAuth();
@@ -29,6 +30,7 @@ const Profile = ({ signOutUser }) => {
   const [userPosts, setUserPosts] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [changeProfile, setChangeProfile] = useState(false);
+  const [showLogoutModal, toggleLogoutModal] = useState(false);
   const { name, email } = userData;
 
   useEffect(() => {
@@ -95,12 +97,11 @@ const Profile = ({ signOutUser }) => {
   };
 
   if (isLoading) {
-    return <Loading />;
+    return <Progress />;
   }
 
   return (
     <div className="w-screen h-screen flex flex-col items-center">
-      <header></header>
       <main className="auth-container flex flex-col items-center my-10">
         <h1 className="text-gray-500 font-semibold text-xl my-5">Personal Information</h1>
         <UserIcon fill="#42b0f5" width="40" height="40" />
@@ -130,9 +131,9 @@ const Profile = ({ signOutUser }) => {
               </Fab>
             )}
           </Button>
-          <Button type="button" onClick={handleSignout}>
-            <Fab variant="extended">
-              <Done />
+          <Button type="button" onClick={() => toggleLogoutModal(true)}>
+            <Fab variant="secondary">
+              <Logout />
             </Fab>
           </Button>
         </div>
@@ -182,6 +183,14 @@ const Profile = ({ signOutUser }) => {
           </tbody>
         </table>
       </div>
+      <InstructionModal
+        open={showLogoutModal}
+        onClose={handleSignout}
+        toggleModal={toggleLogoutModal}
+        firstButtonLabel="cancel"
+        secondButtonLabel="Logout"
+        message={Messages.LOG_OUT}
+      />
     </div>
   );
 };

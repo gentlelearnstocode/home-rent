@@ -91,7 +91,7 @@ const SearchAppBar = () => {
       open={isMenuOpen}
       onClose={handleMenuClose}>
       <MenuItem onClick={() => navigate('/profile')}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={() => navigate('/view-posts')}>My account</MenuItem>
     </Menu>
   );
 

@@ -8,5 +8,18 @@ import Category from './Category';
 import CreateListing from './CreateListing';
 import Post from './Post';
 import ContactOwner from './ContactOwner';
+import ViewPosts from './ViewPosts';
 
-export { Explore, SignIn, SignUp, Offers, ForgotPassword, Profile, Category, CreateListing, Post, ContactOwner };
+export {
+  Explore,
+  SignIn,
+  SignUp,
+  Offers,
+  ForgotPassword,
+  Profile,
+  Category,
+  CreateListing,
+  Post,
+  ContactOwner,
+  ViewPosts
+};
