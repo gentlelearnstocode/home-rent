@@ -43,6 +43,8 @@ const Post = () => {
     }
   };
 
+  console.log(auth.currentUser);
+
   if (isLoading) {
     return <Loading />;
   }

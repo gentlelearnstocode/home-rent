@@ -2,6 +2,10 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
+import { getAuth } from 'firebase/auth';
+import { toast } from 'react-toastify';
+
+import { queryListingData } from '../utils/asyncUtils';
 
 const columns = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -49,22 +53,29 @@ const rows = [
 const ViewPosts = () => {
   const [userPosts, setUserPosts] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState(null);
+  const auth = getAuth();
+
+  useEffect(() => setUserId(auth.currentUser.uid), []);
 
   useEffect(() => {
-    let userPosts = [];
-    try {
-      queryListingData('userRef', auth.currentUser.uid, userPosts);
-    } catch (error) {
-      toast.error('Could not fetch posts');
-    }
-    const timer = setTimeout(() => {
-      setUserPosts(userPosts);
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    console.log(fetchUserData(userId));
+  }, [auth.currentUser.uid]);
 
-  console.log('user posts:', userPosts);
+  const fetchUserData = async (userId) => {
+    const data = await queryListingData('userRef', userId, []);
+    console.log(data);
+  };
+
+  // useEffect(() => {
+  //   try {
+  //     queryListingData('userRef', auth.currentUser.uid, []);
+  //   } catch (error) {
+  //     toast.error('Could not fetch posts');
+  //   }
+  // }, []);
+
+  console.log('user posts:', auth.currentUser.uid);
 
   return (
     <Box sx={{ height: 400, width: '100%' }}>

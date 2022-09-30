@@ -1,15 +1,19 @@
 import React, { Fragment } from 'react';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { connect } from 'react-redux/es/exports';
+import PropTypes from 'prop-types';
 
-import { ProductCard, Progress } from '../components';
+import { ProductCard, Progress, MediaCard } from '../components';
 import { queryListingData } from '../utils/asyncUtils';
+import InstructionModal from '../components';
 
-const Category = () => {
+const Category = ({ isSignedIn }) => {
   const [listings, setListings] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const params = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     let listings = [];
@@ -25,21 +29,24 @@ const Category = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const handleProductClicked = (type, id) => {
+    navigate(`/category/${type}/${id}`);
+  };
+
   const emptyList = (
     <h1 className="font-semibold text-center">Currently, there is no places for {params.categoryName}</h1>
   );
 
+  console.log('signedin:', isSignedIn);
+
   return (
     <>
       <div className="h-full">
-        <header className="text-center font-semibold my-5 capitalize text-sky-500 text-2xl">
-          Showing places for {params.categoryName}
-        </header>
         {isLoading ? (
           <Progress />
         ) : listings && listings.length > 0 ? (
           <Fragment>
-            <main className="grid lg:grid-cols-2 gap-2 mx-10 md:grid-cols-2 sm:grid-cols-1 my-10">
+            <main className="grid lg:grid-cols-4 gap-2 mx-10 md:grid-cols-2 sm:grid-cols-1 my-10">
               {listings.map((list) => {
                 const {
                   bathrooms,
@@ -59,17 +66,18 @@ const Category = () => {
                 const { id } = list;
                 return (
                   <section key={listings.id}>
-                    <ProductCard
+                    <MediaCard
                       offer={offer}
                       img={imgUrls}
                       name={name}
                       regularPrice={regularPrice}
-                      bedrooms={bedrooms}
-                      bathrooms={bathrooms}
-                      location={location}
+                      // bedrooms={bedrooms}
+                      // bathrooms={bathrooms}
+                      // location={location}
                       discountedPrice={offer ? discountedPrice : regularPrice}
                       type={type}
                       id={id}
+                      onClickCard={handleProductClicked}
                     />
                   </section>
                 );
@@ -79,9 +87,20 @@ const Category = () => {
         ) : (
           emptyList
         )}
+        {/* <InstructionModal open={!isSignedIn} onClose={() => navigate('/sign-in')} /> */}
       </div>
     </>
   );
 };
 
-export default Category;
+Category.propTypes = {
+  isSignedIn: PropTypes.bool.isRequired
+};
+
+const mapStateToProp = (state) => {
+  return {
+    isSignedIn: state.authReducer.isSignedIn
+  };
+};
+
+export default connect(mapStateToProp)(Category);

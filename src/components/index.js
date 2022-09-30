@@ -10,6 +10,7 @@ import Progress from './Progress';
 import BottomNavigation from './BottomNavigation';
 import SearchAppBar from './SearchAppBar';
 import InstructionModal from './InstructionModal';
+import MediaCard from './MediaCard';
 
 export {
   Navbar,
@@ -23,5 +24,6 @@ export {
   Progress,
   BottomNavigation,
   SearchAppBar,
-  InstructionModal
+  InstructionModal,
+  MediaCard
 };
