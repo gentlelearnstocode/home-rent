@@ -12,11 +12,7 @@ const InstructionModal = (props) => {
 
   return (
     <div>
-      <Modal
-        open={open}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-        sx={styles.instructionModal}>
+      <Modal open={open} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
         <Box sx={styles.instructionModalBox}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
             {message}

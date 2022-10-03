@@ -56,27 +56,6 @@ const ViewPosts = () => {
   const [userId, setUserId] = useState(null);
   const auth = getAuth();
 
-  useEffect(() => setUserId(auth.currentUser.uid), []);
-
-  useEffect(() => {
-    console.log(fetchUserData(userId));
-  }, [auth.currentUser.uid]);
-
-  const fetchUserData = async (userId) => {
-    const data = await queryListingData('userRef', userId, []);
-    console.log(data);
-  };
-
-  // useEffect(() => {
-  //   try {
-  //     queryListingData('userRef', auth.currentUser.uid, []);
-  //   } catch (error) {
-  //     toast.error('Could not fetch posts');
-  //   }
-  // }, []);
-
-  console.log('user posts:', auth.currentUser.uid);
-
   return (
     <Box sx={{ height: 400, width: '100%' }}>
       <DataGrid

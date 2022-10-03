@@ -5,14 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import { Loading, Modal } from '../components';
 import { FaPlusCircle, FaMinusCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { v4 } from 'uuid';
 import { addDoc, collection, serverTimestamp, updateDoc } from 'firebase/firestore';
+import axios from 'axios';
 
 import { INCREASE_BATHROOMS, DECREASE_BATHROOMS, INCREASE_BEDROOMS, DECREASE_BEDROOMS } from '../constants';
 import { GEOCODING_API_KEY, GEOCODING_API_URL } from '../config/apiConfig';
 import { db } from '../firebase.config';
-import axios from 'axios';
 import { currentLocation } from '../assets/images';
+import { storeImages } from '../utils/asyncUtils';
 
 const CreateListing = () => {
   const [isGeolocationEnabled, setGeolocationEnabled] = useState(true);
@@ -123,38 +123,6 @@ const CreateListing = () => {
     }
   };
 
-  const storeImages = async (image) => {
-    return new Promise((resolve, reject) => {
-      const storage = getStorage();
-      const fileName = `${auth.currentUser.uid}-${image.name}-${v4()}`;
-      const storageRef = ref(storage, 'images/' + fileName);
-      const uploadTask = uploadBytesResumable(storageRef, image);
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
-          switch (snapshot.state) {
-            case 'paused':
-              console.log('Upload is paused');
-              break;
-            case 'running':
-              console.log('Upload is running');
-              break;
-          }
-        },
-        (error) => {
-          reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            resolve(downloadURL);
-          });
-        }
-      );
-    });
-  };
-
   const handleSubmitForm = async (e) => {
     console.log(formData);
     e.preventDefault();
@@ -223,7 +191,7 @@ const CreateListing = () => {
 
     const imgUrls = await Promise.all(
       [...images].map((image) => {
-        return storeImages(image);
+        return storeImages(image, '/images', auth);
       })
     ).catch(() => {
       setIsLoading(false);

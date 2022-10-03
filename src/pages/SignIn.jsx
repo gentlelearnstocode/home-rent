@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { toast } from 'react-toastify';
-import { TextField, Button, Paper } from '@mui/material';
+import { TextField, Button, Input } from '@mui/material';
 
 import { showPasswordIcon, hidePasswordIcon } from '../assets/icons';
 import { OAuth } from '../components';
+import { Messages } from '../constants';
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -36,8 +37,9 @@ const SignIn = () => {
       // const userAccessToken = await userCredential.user.getIdToken();
       localStorage.setItem('displayName', userCredential.user.displayName);
       localStorage.setItem('Email', userCredential.user.email);
+      toast.success(Messages.LOGGED_IN);
     } catch (error) {
-      toast.error('Invalid user credentials');
+      toast.error(Messages.INVALID_CREDENTIAL);
     }
   };
 

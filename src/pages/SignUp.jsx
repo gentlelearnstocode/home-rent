@@ -12,26 +12,35 @@ import { EmailIcon, LockIcon, showPasswordIcon, hidePasswordIcon, UserIcon } fro
 import { app } from '../firebase.config';
 import { OAuth } from '../components';
 import styles from './styles';
+import { storeImages } from '../utils/asyncUtils';
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [userData, setUserData] = useState({
     name: '',
     email: '',
-    password: ''
+    password: '',
+    profileImage: null
   });
 
   const navigate = useNavigate();
-  const { name, email, password } = userData;
+  const { name, email, password, profileImage } = userData;
   const toggleShowPassword = () => {
     setShowPassword((prev) => !prev);
   };
 
   const handleUserInput = (e) => {
-    setUserData((prev) => ({
-      ...prev,
-      [e.target.id]: e.target.value
-    }));
+    if (e.target.files) {
+      setUserData((prev) => ({
+        ...prev,
+        profileImage: e.target.files
+      }));
+    } else {
+      setUserData((prev) => ({
+        ...prev,
+        [e.target.id]: e.target.value
+      }));
+    }
   };
 
   const handleSignUpSubmit = async (e) => {
@@ -100,6 +109,10 @@ const SignUp = () => {
               <img onClick={toggleShowPassword} src={hidePasswordIcon} width="20px" height="20px" />
             )}
           </div>
+          <Button variant="text" component="label">
+            Profile photo
+            <input onChange={handleUserInput} accept=".png,.jpeg,.jpg" type="file" />
+          </Button>
           <Button variant="contained" type="submit" sx={styles.marginTop}>
             Signup
           </Button>

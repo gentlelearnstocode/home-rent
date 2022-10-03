@@ -11,7 +11,12 @@ export const categoryRoutes = {
 };
 
 export const Messages = {
-  LOG_OUT: 'Are you sure you want to log out?'
+  LOG_OUT: 'Are you sure you want to log out?',
+  LOG_IN_TO_VIEW: 'Please login to view this post!',
+  INVALID_CREDENTIAL: 'Invalid user credentials!',
+  LOGGED_IN: 'You have been logged in!',
+  UPDATE_INFO_SUCCESS: 'Your information has been updated',
+  UPDATE_INFO_FAIL: 'Could not update personal information. Please try again.'
 };
 
 export const colors = {};

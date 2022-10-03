@@ -23,7 +23,8 @@ const styles = {
   progressBar: {
     width: '100%',
     marginTop: 5
-  }
+  },
+  cardWrapper: { maxWidth: 400, maxHeight: 800, margin: '5px 0 50px 0' }
 };
 
 export default styles;

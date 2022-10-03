@@ -67,10 +67,10 @@ const Profile = ({ signOutUser }) => {
       await updateDoc(userRef, {
         name: name
       });
-      toast.success('Your information has been updated');
+      toast.success(Messages.UPDATE_INFO_SUCCESS);
     } catch (error) {
       console.log(error);
-      toast.error('Could not update personal information. Please try again.');
+      toast.error(Messages.UPDATE_INFO_FAIL);
     }
   };
 

@@ -5,13 +5,14 @@ import { toast } from 'react-toastify';
 import { connect } from 'react-redux/es/exports';
 import PropTypes from 'prop-types';
 
-import { ProductCard, Progress, MediaCard } from '../components';
+import { ProductCard, Progress, MediaCard, InstructionModal } from '../components';
 import { queryListingData } from '../utils/asyncUtils';
-import InstructionModal from '../components';
+import { Messages } from '../constants';
 
 const Category = ({ isSignedIn }) => {
   const [listings, setListings] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showLoginModal, toggleLoginModal] = useState(false);
   const params = useParams();
   const navigate = useNavigate();
 
@@ -37,7 +38,7 @@ const Category = ({ isSignedIn }) => {
     <h1 className="font-semibold text-center">Currently, there is no places for {params.categoryName}</h1>
   );
 
-  console.log('signedin:', isSignedIn);
+  console.log('signedin:', showLoginModal);
 
   return (
     <>
@@ -71,13 +72,17 @@ const Category = ({ isSignedIn }) => {
                       img={imgUrls}
                       name={name}
                       regularPrice={regularPrice}
-                      // bedrooms={bedrooms}
-                      // bathrooms={bathrooms}
-                      // location={location}
+                      bedrooms={bedrooms}
+                      bathrooms={bathrooms}
+                      location={location}
                       discountedPrice={offer ? discountedPrice : regularPrice}
+                      parking={parking}
+                      furnished={furnished}
                       type={type}
                       id={id}
                       onClickCard={handleProductClicked}
+                      toggleLoginModal={toggleLoginModal}
+                      authStatus={isSignedIn}
                     />
                   </section>
                 );
@@ -87,7 +92,14 @@ const Category = ({ isSignedIn }) => {
         ) : (
           emptyList
         )}
-        {/* <InstructionModal open={!isSignedIn} onClose={() => navigate('/sign-in')} /> */}
+        <InstructionModal
+          open={showLoginModal}
+          toggleModal={toggleLoginModal}
+          onClose={() => navigate('/sign-in')}
+          firstButtonLabel="cancel"
+          secondButtonLabel="login"
+          message={Messages.LOG_IN_TO_VIEW}
+        />
       </div>
     </>
   );

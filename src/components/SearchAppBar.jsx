@@ -9,6 +9,8 @@ import { PostAdd, LocalOffer, TravelExplore } from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+import { mainLogo } from '../assets/images';
+
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -147,12 +149,7 @@ const SearchAppBar = () => {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton size="large" edge="start" color="inherit" aria-label="open drawer" sx={{ mr: 2 }}>
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ display: { xs: 'none', sm: 'block' } }}>
-            Home Rent
-          </Typography>
+          <img className="cursor-pointer" src={mainLogo} width="120" onClick={() => navigate('/')} />
           <Search>
             <SearchIconWrapper>
               <SearchIcon />
