@@ -6,24 +6,25 @@ import { useNavigate } from 'react-router-dom';
 import { updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { connect } from 'react-redux/es/exports';
 import PropTypes from 'prop-types';
-import { TextField, Button, Fab } from '@mui/material';
-import { Edit, Done, Logout } from '@mui/icons-material';
+import { TextField, Button, Fab, Avatar } from '@mui/material';
+import { Edit, Done, Logout, FileUpload } from '@mui/icons-material';
 
 import { db } from '../firebase.config';
 import { UserIcon } from '../assets/icons';
 import { types } from '../actions/types';
-import { queryListingData } from '../utils/asyncUtils';
-import { Progress, PostList, InstructionModal } from '../components';
+import { queryListingData, storeImages } from '../utils/asyncUtils';
+import { Progress, PostList, InstructionModal, FileUploader } from '../components';
 import styles from './styles';
 import { Messages } from '../constants';
 
-const Profile = ({ signOutUser }) => {
+const Profile = ({ signOutUser, userCredentials, updateUserInfo }) => {
   const auth = getAuth();
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
-    name: localStorage.getItem('displayName'),
-    email: localStorage.getItem('Email')
-
+    name: userCredentials.displayName,
+    email: userCredentials.email,
+    profileImg: userCredentials.profileImg
+    //TODO
     // name: auth.currentUser.displayName,
     // email: auth.currentUser.email
   });
@@ -31,12 +32,12 @@ const Profile = ({ signOutUser }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [changeProfile, setChangeProfile] = useState(false);
   const [showLogoutModal, toggleLogoutModal] = useState(false);
-  const { name, email } = userData;
+  const { name, email, profileImg } = userData;
 
   useEffect(() => {
     let userPosts = [];
     try {
-      queryListingData('userRef', auth.currentUser.uid, userPosts);
+      queryListingData('userRef', userCredentials.userId, userPosts);
     } catch (error) {
       toast.error('Could not fetch posts');
     }
@@ -45,28 +46,30 @@ const Profile = ({ signOutUser }) => {
       setIsLoading(false);
     }, 1000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [auth.currentUser]);
 
   const handleSignout = () => {
     auth.signOut();
     signOutUser();
     localStorage.clear();
     navigate('/');
-    toast.info('You have been signed out ');
+    toast.info(Messages.USER_SIGNOUT_SUCCESS);
   };
 
   const onUpdateUserInfo = async () => {
     try {
+      const getProfileImage = await Promise.all([...profileImg].map((img) => storeImages(img, 'profileImg/', auth)));
+      const profileImgUrl = getProfileImage.toString();
       auth.currentUser.displayName !== name &&
         (await updateProfile(auth.currentUser, {
-          displayName: name
+          displayName: name,
+          photoURL: profileImgUrl
         }));
-
-      const user = auth.currentUser;
-      const userRef = doc(db, 'users', user.uid);
+      const userRef = doc(db, 'users', userCredentials.userId);
       await updateDoc(userRef, {
-        name: name
-      });
+        name: name,
+        profileImg: profileImgUrl
+      }).then(() => updateUserInfo({ displayName: name, email, uid: auth.currentUser.uid, profileImg: profileImgUrl }));
       toast.success(Messages.UPDATE_INFO_SUCCESS);
     } catch (error) {
       console.log(error);
@@ -75,10 +78,17 @@ const Profile = ({ signOutUser }) => {
   };
 
   const onChangeUserInput = (e) => {
-    setUserData((prevState) => ({
-      ...prevState,
-      [e.target.id]: e.target.value
-    }));
+    if (e.target.files) {
+      setUserData((prevState) => ({
+        ...prevState,
+        profileImg: e.target.files
+      }));
+    } else {
+      setUserData((prevState) => ({
+        ...prevState,
+        [e.target.id]: e.target.value
+      }));
+    }
   };
 
   const onDeletePost = async (id) => {
@@ -96,6 +106,17 @@ const Profile = ({ signOutUser }) => {
     navigate(`/category/${type}/${id}`);
   };
 
+  const getProfileAvatar = () => {
+    if (userCredentials.profileImg) {
+      return <img src={userCredentials.profileImg} alt="profile image" />;
+    } else {
+      return name[0];
+    }
+  };
+
+  console.log('userCredentials:', auth.currentUser);
+  console.log('user data:', userData);
+
   if (isLoading) {
     return <Progress />;
   }
@@ -103,8 +124,7 @@ const Profile = ({ signOutUser }) => {
   return (
     <div className="w-screen h-screen flex flex-col items-center">
       <main className="auth-container flex flex-col items-center my-10">
-        <h1 className="text-gray-500 font-semibold text-xl my-5">Personal Information</h1>
-        <UserIcon fill="#42b0f5" width="40" height="40" />
+        <Avatar sx={styles.userAvatar}>{getProfileAvatar()}</Avatar>
         <TextField
           onChange={onChangeUserInput}
           type="text"
@@ -114,6 +134,7 @@ const Profile = ({ signOutUser }) => {
           sx={styles.userInfo}
         />
         <TextField type="email" id="email" value={email} disabled={true} sx={styles.userInfo} />
+        <input type="file" onChange={onChangeUserInput} disabled={!changeProfile} />
         <div className="flex flex-row space-x-5 my-5">
           <Button
             type="button"
@@ -197,12 +218,21 @@ const Profile = ({ signOutUser }) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    signOutUser: () => dispatch({ type: types.SIGN_OUT })
+    signOutUser: () => dispatch({ type: types.SIGN_OUT }),
+    updateUserInfo: (payload) => dispatch({ type: types.UPDATE_USER_INFO_SUCCESS, payload })
+  };
+};
+
+const mapStateToProps = (state) => {
+  return {
+    userCredentials: state.authReducer.userCredentials
   };
 };
 
 Profile.propTypes = {
-  signOutUser: PropTypes.func.isRequired
+  signOutUser: PropTypes.func.isRequired,
+  userCredentials: PropTypes.object,
+  updateUserInfo: PropTypes.func.isRequired
 };
 
-export default connect(null, mapDispatchToProps)(Profile);
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);

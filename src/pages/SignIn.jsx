@@ -4,12 +4,16 @@ import { useNavigate, Link } from 'react-router-dom';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { toast } from 'react-toastify';
 import { TextField, Button, Input } from '@mui/material';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { showPasswordIcon, hidePasswordIcon } from '../assets/icons';
 import { OAuth } from '../components';
 import { Messages } from '../constants';
+import { types } from '../actions/types';
 
-const SignIn = () => {
+const SignIn = (props) => {
+  const { signInUser, userCredentials } = props;
   const [showPassword, setShowPassword] = useState(false);
   const [userData, setUserData] = useState({
     email: '',
@@ -33,12 +37,16 @@ const SignIn = () => {
     try {
       const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      userCredential.user && navigate('/profile');
-      // const userAccessToken = await userCredential.user.getIdToken();
+      if (userCredential.user) {
+        const { displayName, email, uid, photoURL } = userCredential.user;
+        signInUser({ displayName, email, uid, photoURL });
+        navigate('/profile');
+      }
       localStorage.setItem('displayName', userCredential.user.displayName);
       localStorage.setItem('Email', userCredential.user.email);
       toast.success(Messages.LOGGED_IN);
     } catch (error) {
+      console.log('error', error);
       toast.error(Messages.INVALID_CREDENTIAL);
     }
   };
@@ -95,4 +103,21 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    signInUser: (payload) => dispatch({ type: types.SIGN_IN, payload })
+  };
+};
+
+const mapStateToProps = (state) => {
+  return {
+    userCredentials: state.authReducer.userCredentials
+  };
+};
+
+SignIn.propTypes = {
+  signInUser: PropTypes.func.isRequired,
+  userCredentials: PropTypes.object
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignIn);

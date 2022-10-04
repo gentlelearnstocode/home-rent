@@ -16,7 +16,8 @@ export const Messages = {
   INVALID_CREDENTIAL: 'Invalid user credentials!',
   LOGGED_IN: 'You have been logged in!',
   UPDATE_INFO_SUCCESS: 'Your information has been updated',
-  UPDATE_INFO_FAIL: 'Could not update personal information. Please try again.'
+  UPDATE_INFO_FAIL: 'Could not update personal information. Please try again.',
+  USER_SIGNOUT_SUCCESS: 'You have been signed out'
 };
 
 export const colors = {};

@@ -11,6 +11,7 @@ import BottomNavigation from './BottomNavigation';
 import SearchAppBar from './SearchAppBar';
 import InstructionModal from './InstructionModal';
 import MediaCard from './MediaCard';
+import FileUploader from './FileUploader';
 
 export {
   Navbar,
@@ -25,5 +26,6 @@ export {
   BottomNavigation,
   SearchAppBar,
   InstructionModal,
-  MediaCard
+  MediaCard,
+  FileUploader
 };

@@ -6,41 +6,35 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { cloneDeep } from 'lodash';
 import { toast } from 'react-toastify';
 import { TextField, Button } from '@mui/material';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { db } from '../firebase.config';
 import { EmailIcon, LockIcon, showPasswordIcon, hidePasswordIcon, UserIcon } from '../assets/icons';
 import { app } from '../firebase.config';
 import { OAuth } from '../components';
 import styles from './styles';
-import { storeImages } from '../utils/asyncUtils';
+import { types } from '../actions/types';
 
-const SignUp = () => {
+const SignUp = ({ signUpUser }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [userData, setUserData] = useState({
     name: '',
     email: '',
-    password: '',
-    profileImage: null
+    password: ''
   });
 
   const navigate = useNavigate();
-  const { name, email, password, profileImage } = userData;
+  const { name, email, password } = userData;
   const toggleShowPassword = () => {
     setShowPassword((prev) => !prev);
   };
 
   const handleUserInput = (e) => {
-    if (e.target.files) {
-      setUserData((prev) => ({
-        ...prev,
-        profileImage: e.target.files
-      }));
-    } else {
-      setUserData((prev) => ({
-        ...prev,
-        [e.target.id]: e.target.value
-      }));
-    }
+    setUserData((prev) => ({
+      ...prev,
+      [e.target.id]: e.target.value
+    }));
   };
 
   const handleSignUpSubmit = async (e) => {
@@ -55,12 +49,15 @@ const SignUp = () => {
       const userDataCopy = cloneDeep(userData);
       delete userDataCopy.password;
       userDataCopy.timestamp = serverTimestamp();
-      await setDoc(doc(db, 'users', user.uid), userDataCopy);
+      await setDoc(doc(db, 'users', user.uid), userDataCopy).then(() =>
+        signUpUser({ displayName: name, email, uid: user.uid })
+      );
       localStorage.setItem('displayName', email);
       localStorage.setItem('Email', name);
       navigate('/');
       toast.success(`Welcome ${name}! You have registered successfully!`);
     } catch (error) {
+      console.log('sign up error', error);
       toast.error('Something went wrong. Please try again!');
     }
   };
@@ -109,10 +106,6 @@ const SignUp = () => {
               <img onClick={toggleShowPassword} src={hidePasswordIcon} width="20px" height="20px" />
             )}
           </div>
-          <Button variant="text" component="label">
-            Profile photo
-            <input onChange={handleUserInput} accept=".png,.jpeg,.jpg" type="file" />
-          </Button>
           <Button variant="contained" type="submit" sx={styles.marginTop}>
             Signup
           </Button>
@@ -128,4 +121,21 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+const mapStateToProps = (state) => {
+  return {
+    userCredentials: state.authReducer.userCredentials
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    signUpUser: (payload) => dispatch({ type: types.SIGN_UP_SUCCESS, payload })
+  };
+};
+
+SignUp.propTypes = {
+  userCredentials: PropTypes.object,
+  signUpUser: PropTypes.func
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignUp);

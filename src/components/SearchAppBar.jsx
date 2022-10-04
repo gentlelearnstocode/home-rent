@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import { AppBar, Box, Toolbar, IconButton, Typography, InputBase, MenuItem, Menu } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { PostAdd, LocalOffer, TravelExplore } from '@mui/icons-material';
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { mainLogo } from '../assets/images';
 

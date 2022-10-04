@@ -50,7 +50,7 @@ const MediaCard = (props) => {
 
   return (
     <Card sx={styles.cardWrapper}>
-      <CardMedia component="img" height="100" src={img[0]} alt="post" />
+      <CardMedia sx={styles.cardMedia} component="img" height="100" src={img[0]} alt="post" />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
           {name}
@@ -58,7 +58,7 @@ const MediaCard = (props) => {
         <Divider />
         <div className="flex flex-row mt-5 mb-5">
           <Place color="primary" />
-          <Typography sx={{ marginLeft: 1 }} gutterBottom variant="h6" component="h2">
+          <Typography sx={{ marginLeft: 1, fontSize: 18 }} gutterBottom variant="h6" component="h2">
             {location}
           </Typography>
         </div>
