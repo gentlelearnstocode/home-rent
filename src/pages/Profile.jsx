@@ -16,14 +16,16 @@ import { queryListingData, storeImages } from '../utils/asyncUtils';
 import { Progress, PostList, InstructionModal, FileUploader } from '../components';
 import styles from './styles';
 import { Messages } from '../constants';
+import { getProfileAvatar } from '../utils/getterUtils';
+import _ from 'lodash';
 
-const Profile = ({ signOutUser, userCredentials, updateUserInfo }) => {
+const Profile = ({ signOutUser, userCredentials, updateUserInfo, updateUserAvatar }) => {
   const auth = getAuth();
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
     name: userCredentials.displayName,
     email: userCredentials.email,
-    profileImg: userCredentials.profileImg
+    profileImg: []
     //TODO
     // name: auth.currentUser.displayName,
     // email: auth.currentUser.email
@@ -57,19 +59,43 @@ const Profile = ({ signOutUser, userCredentials, updateUserInfo }) => {
   };
 
   const onUpdateUserInfo = async () => {
+    let profileImgUrl = [];
+    const userRef = doc(db, 'users', userCredentials.userId);
     try {
-      const getProfileImage = await Promise.all([...profileImg].map((img) => storeImages(img, 'profileImg/', auth)));
-      const profileImgUrl = getProfileImage.toString();
-      auth.currentUser.displayName !== name &&
-        (await updateProfile(auth.currentUser, {
-          displayName: name,
-          photoURL: profileImgUrl
-        }));
-      const userRef = doc(db, 'users', userCredentials.userId);
-      await updateDoc(userRef, {
-        name: name,
-        profileImg: profileImgUrl
-      }).then(() => updateUserInfo({ displayName: name, email, uid: auth.currentUser.uid, profileImg: profileImgUrl }));
+      if (!_.isEmpty(profileImg)) {
+        const getProfileImage = await Promise.all([...profileImg].map((img) => storeImages(img, 'profileImg/', auth)));
+        profileImgUrl.push(getProfileImage);
+        if (userCredentials.profileImg !== profileImgUrl) {
+          await updateProfile(auth.currentUser, {
+            photoURL: profileImgUrl.toString()
+          })
+            .then(() => updateDoc(userRef, { profileImg: profileImgUrl.toString() }))
+            .then(() =>
+              updateUserAvatar({
+                profileImg: profileImgUrl.toString(),
+                displayName: userCredentials.displayName,
+                uid: userCredentials.userId
+              })
+            );
+        }
+      }
+      if (auth.currentUser.displayName !== name) {
+        await updateProfile(auth.currentUser, {
+          displayName: name
+        })
+          .then(() =>
+            updateDoc(userRef, {
+              name: name
+            })
+          )
+          .then(() =>
+            updateUserInfo({
+              displayName: name,
+              profileImg: userCredentials.profileImg,
+              uid: userCredentials.userId
+            })
+          );
+      }
       toast.success(Messages.UPDATE_INFO_SUCCESS);
     } catch (error) {
       console.log(error);
@@ -106,16 +132,8 @@ const Profile = ({ signOutUser, userCredentials, updateUserInfo }) => {
     navigate(`/category/${type}/${id}`);
   };
 
-  const getProfileAvatar = () => {
-    if (userCredentials.profileImg) {
-      return <img src={userCredentials.profileImg} alt="profile image" />;
-    } else {
-      return name[0];
-    }
-  };
-
-  console.log('userCredentials:', auth.currentUser);
-  console.log('user data:', userData);
+  console.log('empty or not:', profileImg);
+  console.log('user credentials', userCredentials);
 
   if (isLoading) {
     return <Progress />;
@@ -124,7 +142,7 @@ const Profile = ({ signOutUser, userCredentials, updateUserInfo }) => {
   return (
     <div className="w-screen h-screen flex flex-col items-center">
       <main className="auth-container flex flex-col items-center my-10">
-        <Avatar sx={styles.userAvatar}>{getProfileAvatar()}</Avatar>
+        <Avatar sx={styles.userAvatar}>{getProfileAvatar(userCredentials)}</Avatar>
         <TextField
           onChange={onChangeUserInput}
           type="text"
@@ -134,7 +152,16 @@ const Profile = ({ signOutUser, userCredentials, updateUserInfo }) => {
           sx={styles.userInfo}
         />
         <TextField type="email" id="email" value={email} disabled={true} sx={styles.userInfo} />
-        <input type="file" onChange={onChangeUserInput} disabled={!changeProfile} />
+        <div>
+          <label htmlFor="avatar-input">Upload avatar</label>
+          <input
+            style={styles.userInfo}
+            type="file"
+            onChange={onChangeUserInput}
+            disabled={!changeProfile}
+            id="avatar-input"
+          />
+        </div>
         <div className="flex flex-row space-x-5 my-5">
           <Button
             type="button"
@@ -219,7 +246,8 @@ const Profile = ({ signOutUser, userCredentials, updateUserInfo }) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     signOutUser: () => dispatch({ type: types.SIGN_OUT }),
-    updateUserInfo: (payload) => dispatch({ type: types.UPDATE_USER_INFO_SUCCESS, payload })
+    updateUserInfo: (payload) => dispatch({ type: types.UPDATE_USER_INFO_SUCCESS, payload }),
+    updateUserAvatar: (payload) => dispatch({ type: types.UPDATE_USER_AVATAR_SUCCESS, payload })
   };
 };
 
@@ -232,7 +260,8 @@ const mapStateToProps = (state) => {
 Profile.propTypes = {
   signOutUser: PropTypes.func.isRequired,
   userCredentials: PropTypes.object,
-  updateUserInfo: PropTypes.func.isRequired
+  updateUserInfo: PropTypes.func.isRequired,
+  updateUserAvatar: PropTypes.func
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);

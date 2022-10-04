@@ -1,14 +1,18 @@
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
-import { AppBar, Box, Toolbar, IconButton, Typography, InputBase, MenuItem, Menu } from '@mui/material';
+import { AppBar, Box, Toolbar, IconButton, Typography, InputBase, MenuItem, Menu, Avatar } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { PostAdd, LocalOffer, TravelExplore } from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { mainLogo } from '../assets/images';
+import styles from './styles';
+import { getProfileAvatar } from '../utils/getterUtils';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -50,7 +54,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   }
 }));
 
-const SearchAppBar = () => {
+const SearchAppBar = ({ isSignedIn, userCredentials }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
   const navigate = useNavigate();
@@ -137,12 +141,14 @@ const SearchAppBar = () => {
           aria-controls="primary-search-account-menu"
           aria-haspopup="true"
           color="inherit">
-          <AccountCircle />
+          {isSignedIn ? <Avatar sx={styles.userAvatar}>{getProfileAvatar(userCredentials)}</Avatar> : <AccountCircle />}
         </IconButton>
         <p>Profile</p>
       </MenuItem>
     </Menu>
   );
+
+  console.log('is signedin', isSignedIn);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -173,7 +179,11 @@ const SearchAppBar = () => {
               aria-haspopup="true"
               onClick={handleProfileMenuOpen}
               color="inherit">
-              <AccountCircle />
+              {isSignedIn ? (
+                <Avatar sx={styles.userAvatar}>{getProfileAvatar(userCredentials)}</Avatar>
+              ) : (
+                <AccountCircle />
+              )}
             </IconButton>
           </Box>
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
@@ -194,4 +204,16 @@ const SearchAppBar = () => {
   );
 };
 
-export default SearchAppBar;
+const mapStateToProps = (state) => {
+  return {
+    userCredentials: state.authReducer.userCredentials,
+    isSignedIn: state.authReducer.isSignedIn
+  };
+};
+
+SearchAppBar.propTypes = {
+  userCredentials: PropTypes.object,
+  isSignedIn: PropTypes.bool
+};
+
+export default connect(mapStateToProps)(SearchAppBar);

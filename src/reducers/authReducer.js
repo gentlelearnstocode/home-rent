@@ -37,8 +37,25 @@ const authReducer = (state = initialState, action) => {
       const { displayName, email, uid, profileImg } = action.payload;
       return {
         ...state,
-        userCredentials: { ...state.userCredentials, displayName, email, userId: uid, profileImg },
+        userCredentials: {
+          ...state.userCredentials,
+          displayName,
+          userId: uid,
+          profileImg
+        },
         isSignedIn: true
+      };
+    }
+    case types.UPDATE_USER_AVATAR_SUCCESS: {
+      const { displayName, email, uid, profileImg } = action.payload;
+      return {
+        ...state,
+        userCredentials: {
+          ...state.userCredentials,
+          profileImg,
+          displayName,
+          userId: uid
+        }
       };
     }
     default:
