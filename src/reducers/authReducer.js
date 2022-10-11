@@ -7,18 +7,36 @@ const initialState = {
     profileImg: ''
   },
   isSignedIn: false,
-  checkingStatus: true
+  checkingStatus: true,
+  isSigningIn: false,
+  isSigningError: false
 };
 
 const authReducer = (state = initialState, action) => {
   switch (action.type) {
-    case types.SIGN_IN: {
+    case types.SIGN_IN_INIT: {
+      return {
+        ...state,
+        isSigningIn: true,
+        isSigningError: false
+      };
+    }
+    case types.SIGN_IN_SUCCESS: {
       const { displayName, email, uid, photoURL } = action.payload;
       return {
         ...state,
         userCredentials: { ...state.userCredentials, displayName, email, userId: uid, profileImg: photoURL },
         isSignedIn: true,
-        checkingStatus: false
+        checkingStatus: false,
+        isSigningIn: false,
+        isSigningError: false
+      };
+    }
+    case types.SIGN_IN_FAIL: {
+      return {
+        ...state,
+        isSigningIn: false,
+        isSigningError: true
       };
     }
     case types.SIGN_OUT:

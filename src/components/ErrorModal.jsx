@@ -7,8 +7,8 @@ import PropTypes from 'prop-types';
 
 import styles from './styles';
 
-const InstructionModal = (props) => {
-  const { open, message, onClose, toggleModal, firstButtonLabel, secondButtonLabel, id } = props;
+const ErrorModal = (props) => {
+  const { open, message, onClose, toggleModal, errorButtonLabel } = props;
 
   return (
     <div>
@@ -17,12 +17,9 @@ const InstructionModal = (props) => {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             {message}
           </Typography>
-          <div className="flex flex-row space-x-10 absolute bottom-4">
+          <div>
             <Button variant="contained" color="primary" onClick={() => toggleModal(false)}>
-              {firstButtonLabel}
-            </Button>
-            <Button variant="contained" color="error" onClick={() => (id ? onClose(id) : onClose())}>
-              {secondButtonLabel}
+              {errorButtonLabel}
             </Button>
           </div>
         </Box>
@@ -31,14 +28,12 @@ const InstructionModal = (props) => {
   );
 };
 
-InstructionModal.propTypes = {
+ErrorModal.propTypes = {
   open: PropTypes.bool.isRequired,
   message: PropTypes.string,
   onClose: PropTypes.func.isRequired,
   toggleModal: PropTypes.func.isRequired,
-  firstButtonLabel: PropTypes.string,
-  secondButtonLabel: PropTypes.string,
-  id: PropTypes.string
+  errorButtonLabel: PropTypes.string
 };
 
-export default InstructionModal;
+export default ErrorModal;

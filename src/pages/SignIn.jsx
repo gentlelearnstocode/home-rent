@@ -8,12 +8,12 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { showPasswordIcon, hidePasswordIcon } from '../assets/icons';
-import { OAuth } from '../components';
+import { OAuth, Progress } from '../components';
 import { Messages } from '../constants';
 import { types } from '../actions/types';
 
 const SignIn = (props) => {
-  const { signInUser, userCredentials } = props;
+  const { signInInit, signInSuccess, signInFail, isSigningIn, isSigningError } = props;
   const [showPassword, setShowPassword] = useState(false);
   const [userData, setUserData] = useState({
     email: '',
@@ -34,22 +34,28 @@ const SignIn = (props) => {
 
   const handleSignInSubmit = async (e) => {
     e.preventDefault();
+    signInInit();
     try {
       const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       if (userCredential.user) {
         const { displayName, email, uid, photoURL } = userCredential.user;
-        signInUser({ displayName, email, uid, photoURL });
+        signInSuccess({ displayName, email, uid, photoURL });
         navigate('/profile');
       }
       localStorage.setItem('displayName', userCredential.user.displayName);
       localStorage.setItem('Email', userCredential.user.email);
       toast.success(Messages.LOGGED_IN);
     } catch (error) {
+      signInFail();
       console.log('error', error);
       toast.error(Messages.INVALID_CREDENTIAL);
     }
   };
+
+  if (isSigningIn) {
+    return <Progress />;
+  }
 
   return (
     <div className="flex flex-col items-center w-screen h-screen">
@@ -105,19 +111,27 @@ const SignIn = (props) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    signInUser: (payload) => dispatch({ type: types.SIGN_IN, payload })
+    signInInit: () => dispatch({ type: types.SIGN_IN_INIT }),
+    signInSuccess: (payload) => dispatch({ type: types.SIGN_IN_SUCCESS, payload }),
+    signInFail: () => dispatch({ type: types.SIGN_IN_FAIL })
   };
 };
 
 const mapStateToProps = (state) => {
   return {
-    userCredentials: state.authReducer.userCredentials
+    userCredentials: state.authReducer.userCredentials,
+    isSigningIn: state.authReducer.isSigningIn,
+    isSigningError: state.authReducer.isSigningError
   };
 };
 
 SignIn.propTypes = {
-  signInUser: PropTypes.func.isRequired,
-  userCredentials: PropTypes.object
+  signInInit: PropTypes.func.isRequired,
+  signInSuccess: PropTypes.func.isRequired,
+  signInFail: PropTypes.func.isRequired,
+  userCredentials: PropTypes.object,
+  isSigningIn: PropTypes.bool,
+  isSigningError: PropTypes.bool
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignIn);

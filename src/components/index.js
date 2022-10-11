@@ -12,6 +12,7 @@ import SearchAppBar from './SearchAppBar';
 import InstructionModal from './InstructionModal';
 import MediaCard from './MediaCard';
 import FileUploader from './FileUploader';
+import ErrorModal from './ErrorModal';
 
 export {
   Navbar,
@@ -27,5 +28,6 @@ export {
   SearchAppBar,
   InstructionModal,
   MediaCard,
-  FileUploader
+  FileUploader,
+  ErrorModal
 };

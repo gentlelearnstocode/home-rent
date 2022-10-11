@@ -5,29 +5,39 @@ import { toast } from 'react-toastify';
 import { connect } from 'react-redux/es/exports';
 import PropTypes from 'prop-types';
 
-import { ProductCard, Progress, MediaCard, InstructionModal } from '../components';
-import { queryListingData } from '../utils/asyncUtils';
+import { ProductCard, Progress, MediaCard, InstructionModal, ErrorModal } from '../components';
+import { queryListingData, queryListingDataV2 } from '../utils/asyncUtils';
 import { Messages } from '../constants';
+import { types } from '../actions/types';
 
-const Category = ({ isSignedIn }) => {
-  const [listings, setListings] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+const Category = ({
+  isSignedIn,
+  isFetchingPost,
+  isErrorFetching,
+  fetchPostInit,
+  fetchPostSuccess,
+  fetchPostFail,
+  userCredentails,
+  userPosts
+}) => {
   const [showLoginModal, toggleLoginModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(isErrorFetching);
   const params = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    let listings = [];
-    try {
-      queryListingData('type', params.categoryName, listings);
-    } catch (error) {
-      toast.success('Something went wrong');
-    }
-    const timer = setTimeout(() => {
-      setListings(listings);
-      setIsLoading(false);
-    }, 2000);
-    return () => clearTimeout(timer);
+    const fetchUserPosts = async () => {
+      fetchPostInit();
+      try {
+        const response = await queryListingDataV2('userRef', userCredentails.userId);
+        if (response) {
+          fetchPostSuccess({ userPosts: response });
+        }
+      } catch (error) {
+        fetchPostFail();
+      }
+    };
+    fetchUserPosts();
   }, []);
 
   const handleProductClicked = (type, id) => {
@@ -38,17 +48,15 @@ const Category = ({ isSignedIn }) => {
     <h1 className="font-semibold text-center">Currently, there is no places for {params.categoryName}</h1>
   );
 
-  console.log('signedin:', showLoginModal);
-
   return (
     <>
       <div className="h-full">
-        {isLoading ? (
+        {isFetchingPost ? (
           <Progress />
-        ) : listings && listings.length > 0 ? (
+        ) : userPosts && userPosts.length > 0 ? (
           <Fragment>
             <main className="grid lg:grid-cols-4 gap-2 mx-10 md:grid-cols-2 sm:grid-cols-1 my-10">
-              {listings.map((list) => {
+              {userPosts.map((list) => {
                 const {
                   bathrooms,
                   bedrooms,
@@ -66,7 +74,7 @@ const Category = ({ isSignedIn }) => {
                 } = list.data;
                 const { id } = list;
                 return (
-                  <section key={listings.id}>
+                  <section key={userPosts.id}>
                     <MediaCard
                       offer={offer}
                       img={imgUrls}
@@ -100,19 +108,44 @@ const Category = ({ isSignedIn }) => {
           secondButtonLabel="login"
           message={Messages.LOG_IN_TO_VIEW}
         />
+        <ErrorModal
+          open={showErrorModal}
+          toggleModal={setShowErrorModal}
+          message={Messages.ERROR_FETCHING_POST}
+          errorButtonLabel="Got it"
+        />
       </div>
     </>
   );
 };
 
 Category.propTypes = {
-  isSignedIn: PropTypes.bool.isRequired
+  isSignedIn: PropTypes.bool.isRequired,
+  isFetchingPost: PropTypes.bool,
+  isErrorFetching: PropTypes.bool,
+  fetchPostInit: PropTypes.func,
+  fetchPostSuccess: PropTypes.func,
+  fetchPostFail: PropTypes.func,
+  userCredentails: PropTypes.object,
+  userPosts: PropTypes.array
 };
 
-const mapStateToProp = (state) => {
+const mapStateToProps = (state) => {
   return {
-    isSignedIn: state.authReducer.isSignedIn
+    isSignedIn: state.authReducer.isSignedIn,
+    userPosts: state.postReducer.userPosts,
+    isFetchingPost: state.postReducer.isFetchingPost,
+    isErrorFetching: state.postReducer.isErrorFetching,
+    userCredentails: state.authReducer.userCredentials
   };
 };
 
-export default connect(mapStateToProp)(Category);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    fetchPostInit: () => dispatch({ type: types.FETCH_USER_POST_INIT }),
+    fetchPostSuccess: (payload) => dispatch({ type: types.FETCH_USER_POST_SUCCESS, payload }),
+    fetchPostFail: () => dispatch({ type: types.FETCH_USER_POST_FAIL })
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Category);

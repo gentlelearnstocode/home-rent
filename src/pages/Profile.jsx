@@ -6,49 +6,31 @@ import { useNavigate } from 'react-router-dom';
 import { updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { connect } from 'react-redux/es/exports';
 import PropTypes from 'prop-types';
-import { TextField, Button, Fab, Avatar } from '@mui/material';
-import { Edit, Done, Logout, FileUpload } from '@mui/icons-material';
+import { TextField, Button, Fab, Avatar, IconButton } from '@mui/material';
+import { Edit, Done, Logout, CloudUpload } from '@mui/icons-material';
 
 import { db } from '../firebase.config';
 import { UserIcon } from '../assets/icons';
 import { types } from '../actions/types';
-import { queryListingData, storeImages } from '../utils/asyncUtils';
+import { storeImages } from '../utils/asyncUtils';
 import { Progress, PostList, InstructionModal, FileUploader } from '../components';
 import styles from './styles';
 import { Messages } from '../constants';
 import { getProfileAvatar } from '../utils/getterUtils';
 import _ from 'lodash';
 
-const Profile = ({ signOutUser, userCredentials, updateUserInfo, updateUserAvatar }) => {
+const Profile = ({ signOutUser, userCredentials, updateUserInfo, updateUserAvatar, userPosts, deleteUserPost }) => {
   const auth = getAuth();
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
     name: userCredentials.displayName,
     email: userCredentials.email,
     profileImg: []
-    //TODO
-    // name: auth.currentUser.displayName,
-    // email: auth.currentUser.email
   });
-  const [userPosts, setUserPosts] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [changeProfile, setChangeProfile] = useState(false);
   const [showLogoutModal, toggleLogoutModal] = useState(false);
   const { name, email, profileImg } = userData;
-
-  useEffect(() => {
-    let userPosts = [];
-    try {
-      queryListingData('userRef', userCredentials.userId, userPosts);
-    } catch (error) {
-      toast.error('Could not fetch posts');
-    }
-    const timer = setTimeout(() => {
-      setUserPosts(userPosts);
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [auth.currentUser]);
+  const currentUser = auth.currentUser;
 
   const handleSignout = () => {
     auth.signOut();
@@ -62,11 +44,14 @@ const Profile = ({ signOutUser, userCredentials, updateUserInfo, updateUserAvata
     let profileImgUrl = [];
     const userRef = doc(db, 'users', userCredentials.userId);
     try {
+      if (name === currentUser.displayName && _.isEmpty(profileImg)) {
+        return toast.info(Messages.NOTHING_TO_UPDATE);
+      }
       if (!_.isEmpty(profileImg)) {
         const getProfileImage = await Promise.all([...profileImg].map((img) => storeImages(img, 'profileImg/', auth)));
         profileImgUrl.push(getProfileImage);
         if (userCredentials.profileImg !== profileImgUrl) {
-          await updateProfile(auth.currentUser, {
+          await updateProfile(currentUser, {
             photoURL: profileImgUrl.toString()
           })
             .then(() => updateDoc(userRef, { profileImg: profileImgUrl.toString() }))
@@ -79,8 +64,8 @@ const Profile = ({ signOutUser, userCredentials, updateUserInfo, updateUserAvata
             );
         }
       }
-      if (auth.currentUser.displayName !== name) {
-        await updateProfile(auth.currentUser, {
+      if (currentUser.displayName !== name) {
+        await updateProfile(currentUser, {
           displayName: name
         })
           .then(() =>
@@ -96,6 +81,7 @@ const Profile = ({ signOutUser, userCredentials, updateUserInfo, updateUserAvata
             })
           );
       }
+
       toast.success(Messages.UPDATE_INFO_SUCCESS);
     } catch (error) {
       console.log(error);
@@ -118,26 +104,19 @@ const Profile = ({ signOutUser, userCredentials, updateUserInfo, updateUserAvata
   };
 
   const onDeletePost = async (id) => {
-    if (window.confirm('Delete this post?')) {
+    if (window.confirm(Messages.DELETE_POST_CONFIRM)) {
       await deleteDoc(doc(db, 'listings', id));
       const updatedList = userPosts.filter((post) => {
         return post.id !== id;
       });
-      setUserPosts(updatedList);
-      toast.success('Post has been successfully deleted');
+      deleteUserPost({ userPosts: updatedList });
+      toast.success(Messages.POST_DELETE_SUCCESS);
     }
   };
 
   const onViewPostItem = (type, id) => {
     navigate(`/category/${type}/${id}`);
   };
-
-  console.log('empty or not:', profileImg);
-  console.log('user credentials', userCredentials);
-
-  if (isLoading) {
-    return <Progress />;
-  }
 
   return (
     <div className="w-screen h-screen flex flex-col items-center">
@@ -161,6 +140,12 @@ const Profile = ({ signOutUser, userCredentials, updateUserInfo, updateUserAvata
             disabled={!changeProfile}
             id="avatar-input"
           />
+          {/* <FileUploader
+            multiFile={false}
+            disabled={!changeProfile}
+            uploadTitle="Upload your avatar"
+            onChangeUpload={(e) => onChangeUserInput(e)}
+          /> */}
         </div>
         <div className="flex flex-row space-x-5 my-5">
           <Button
@@ -186,51 +171,6 @@ const Profile = ({ signOutUser, userCredentials, updateUserInfo, updateUserAvata
           </Button>
         </div>
       </main>
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg mb-10">
-        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" className="px-6 py-3">
-                Index
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Title
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Location
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Type
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Price
-              </th>
-              <th scope="col" className="px-6 py-3  text-center">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {userPosts.map((post, index) => {
-              const { name, location, regularPrice, discountedPrice, offer, type } = post.data;
-              const { id } = post;
-              return (
-                <PostList
-                  key={index}
-                  title={name}
-                  location={location}
-                  price={offer ? discountedPrice : regularPrice}
-                  type={type}
-                  index={index}
-                  id={id}
-                  onDeletePost={onDeletePost}
-                  onViewPostItem={onViewPostItem}
-                />
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
       <InstructionModal
         open={showLogoutModal}
         onClose={handleSignout}
@@ -247,7 +187,8 @@ const mapDispatchToProps = (dispatch) => {
   return {
     signOutUser: () => dispatch({ type: types.SIGN_OUT }),
     updateUserInfo: (payload) => dispatch({ type: types.UPDATE_USER_INFO_SUCCESS, payload }),
-    updateUserAvatar: (payload) => dispatch({ type: types.UPDATE_USER_AVATAR_SUCCESS, payload })
+    updateUserAvatar: (payload) => dispatch({ type: types.UPDATE_USER_AVATAR_SUCCESS, payload }),
+    deleteUserPost: (payload) => dispatch({ type: types.DELETE_POST, payload })
   };
 };
 
@@ -261,7 +202,9 @@ Profile.propTypes = {
   signOutUser: PropTypes.func.isRequired,
   userCredentials: PropTypes.object,
   updateUserInfo: PropTypes.func.isRequired,
-  updateUserAvatar: PropTypes.func
+  updateUserAvatar: PropTypes.func,
+  userPosts: PropTypes.array,
+  deleteUserPost: PropTypes.func
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);

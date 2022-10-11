@@ -32,7 +32,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    signInUser: () => dispatch({ type: types.SIGN_IN })
+    signInUser: () => dispatch({ type: types.SIGN_IN_SUCCESS })
   };
 };
 

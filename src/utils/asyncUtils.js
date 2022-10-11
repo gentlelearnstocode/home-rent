@@ -46,3 +46,17 @@ export const storeImages = async (image, folder = 'images/', auth) => {
     );
   });
 };
+
+export const queryListingDataV2 = async (type, param) => {
+  const listings = [];
+  const listingsRef = collection(db, 'listings');
+  const queryRef = query(listingsRef, where(type, '==', param), orderBy('timestamp', 'desc'), limit(10));
+  const querySnap = await getDocs(queryRef);
+  querySnap.forEach((doc) => {
+    listings.push({
+      id: doc.id,
+      data: doc.data()
+    });
+  });
+  return listings;
+};
